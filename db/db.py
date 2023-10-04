@@ -17,16 +17,25 @@ class SQLighter:
         with self.connection:
             return self.cursor.execute("INSERT INTO `users` (`telegram_id`, `first_name`, `last_name`, `registration_date`) VALUES (?, ?, ?, ?)", (user_telegram_id, user_firstname, user_lastname, datetime.now(), ))
 
-    def add_subscription(self, user_telegram_id, is_fulltime = 0, datetime_finaly = 0): 
+    def add_subscription(self, user_telegram_id, is_fulltime = 0, datetime_finaly = '2020-01-01 00:00:00.111111'): 
         with self.connection:
             return self.cursor.execute("INSERT INTO `subscriptions` (`telegram_id`, `is_fulltime`, `datetime_finaly`) VALUES (?, ?, ?)", (user_telegram_id, is_fulltime, datetime_finaly, ))
 
+    def set_subscription_time(self, user_id, datetime):
+        with self.connection:
+            return self.cursor.execute("UPDATE `subscriptions` SET `datetime_finaly` = ? WHERE `telegram_id` = ?", (datetime, user_id))
+
+    def get_subscription_time(self, user_id):
+        with self.connection:
+            return self.cursor.execute("SELECT `datetime_finaly` FROM `subscriptions` WHERE `telegram_id` = ?", (user_id, )).fetchone()[0]
+    
     def is_subscription(self, user_id):
         with self.connection:
-            result = self.cursor.execute("SELECT `is_fulltime` FROM `subscriptions` WHERE `telegram_id` = ?", (user_id, )).fetchone()
-            if result: return (result)
-            result = self.cursor.execute("SELECT `is_fulltime` FROM `subscriptions` WHERE `telegram_id` = ?", (user_id, )).fetchone()
-            
+            result = self.cursor.execute("SELECT `is_fulltime` FROM `subscriptions` WHERE `telegram_id` = ?", (user_id, )).fetchone()[0]
+            if (result == 1): return (result)
+            result = self.cursor.execute("SELECT `datetime_finaly` FROM `subscriptions` WHERE `telegram_id` = ?", (user_id, )).fetchone()[0]
+            if (datetime.now() < datetime.strptime(result, '%Y-%m-%d %H:%M:%S.%f' )): return(True) 
+            return False
 
     def get_ingredients(self, url):
         with self.connection:

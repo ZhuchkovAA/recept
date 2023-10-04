@@ -6,6 +6,7 @@ from buttons import *
 from aiogram import Bot, Dispatcher, executor, types;
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import json
+import datetime
 
 db = SQLighter("db/recept.db")
 
@@ -17,7 +18,11 @@ async def welcome(message: types.Message):
     if (not db.is_user(message.from_user.id)):
         db.add_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
     await bot.send_message(message.from_user.id, f"Привет, {message.from_user.first_name}😇", reply_markup=check_sub(db.is_subscription(message.from_user.id)))
-    db.add_subscription(message.from_user.id)
+    # db.add_subscription(message.from_user.id)
+    # db.set_subscription_time(message.from_user.id, datetime.now())
+    print(db.is_subscription(message.from_user.id))
+    print(db.get_subscription_time(message.from_user.id))
+    # db.set_subscription_time(message.from_user.id, datetime.datetime.now() + datetime.timedelta(days=1))
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
