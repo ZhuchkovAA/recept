@@ -11,6 +11,10 @@ class SQLighter:
         self.connection = sqlite3.connect(database_file)
         self.cursor = self.connection.cursor()
 
+    def get_profile(self, telegram_id):
+        with self.connection:
+            return self.cursor.execute("SELECT * FROM `users` WHERE `telegram_id` = ?", (telegram_id, )).fetchone()
+
     def is_user(self, user_id):
         with self.connection:
             result = self.cursor.execute("SELECT * FROM `users` WHERE `telegram_id` = ?", (user_id, )).fetchall()
@@ -32,13 +36,14 @@ class SQLighter:
         with self.connection:
             result = self.cursor.execute("SELECT `is_fulltime`, `datetime_finaly`, `counter` FROM `subscriptions` WHERE `telegram_id` = ?", (user_id, )).fetchone()
             try:
-                if (result[0] or datetime.now() < datetime.strptime(result[1], '%Y-%m-%d %H:%M:%S.%f') or result[2]): 
+                is_time_sub = datetime.now() < datetime.strptime(result[1], '%Y-%m-%d %H:%M:%S.%f')
+                if (result[0] or is_time_sub or result[2]): 
                     return {'data': {
                         'status': True,
                         'description': {
                             'is_fulltime': result[0],
                             'datetime_finaly': {
-                                'is_current': datetime.now() < datetime.strptime(result[1], '%Y-%m-%d %H:%M:%S.%f'),
+                                'is_current': is_time_sub,
                                 'datetime': result[1][:-7]
                             },
                             'counter': result[2],
@@ -89,7 +94,7 @@ class SQLighter:
             self.cursor.execute('SELECT `state_dish`, `state_time`, `state_counter` FROM `users` WHERE `telegram_id` = ?', (user_id, ))
             name_db, time, counter = self.cursor.fetchone()
             time = time.split('-')
-            return self.cursor.execute(f"SELECT * FROM `{name_db}` WHERE `current_time` >= {time[0]} AND `current_time` <= {time[1]} LIMIT 10 OFFSET {counter}").fetchall()
+            return self.cursor.execute(f"SELECT * FROM `{name_db}` WHERE `current_time` >= {time[0]} AND `current_time` <= {time[1]} LIMIT 10 OFFSET {counter * 10}").fetchall()
 
     def set_increment_page(self, user_id):
          with self.connection:
@@ -104,7 +109,60 @@ class SQLighter:
 
     def get_photo_dish(self, name_db, url):
         with self.connection:
-            return self.cursor.execute(f"SELECT `img` FROM `{name_db}` WHERE `url` = '{url}'").fetchone()[0]
+            data = self.cursor.execute(f"SELECT `name`, `img` FROM `{name_db}` WHERE `url` = '{url}'").fetchone()
+            return {
+                'name': data[0],
+                'img': data[1]
+            }
+
+    def konstructor(self, data):
+        with self.connection:
+            result = []
+
+            for ref in data:
+                urls = self.cursor.execute(f"SELECT `url` FROM `ingredients` WHERE `name` LIKE '%{ref.lower()}%' OR '%{ref.title()}%'").fetchall()
+                urls = [item[0] for item in urls]
+                for item in urls:
+                    ingredients = self.cursor.execute(f"SELECT `name` FROM ingredients WHERE `url` = ?", (item, )).fetchall()
+                    ingredients = [item[0] for item in ingredients]
+                    current_dish = True
+                    for ingredient in ingredients:
+                        if len(ingredient.split(' ')) == 1:
+                            if ingredient.title() not in data and ingredient.lower() not in data:
+                                current_dish = False
+                                break
+
+                        else:
+                            flag = False
+                            for ingredient_val in ingredient.split(' '):
+                                if ingredient_val.lower() in data or ingredient_val.title() in data:
+                                    flag = True
+                                    break
+                            if not flag: current_dish = False
+                    if current_dish: result.append(item)
+
+            return list(set(result)) 
+
+    def set_konstructor(self, user_id, ingredients):
+        with self.connection:
+            for ingredient in ingredients:
+                self.cursor.execute("INSERT INTO `konstructor` (`telegram_id`, `ingredient`) VALUES (?, ?)", (user_id, ingredient, ))
+
+    def get_konstructor(self, user_id):
+        with self.connection:
+            return self.cursor.execute(f"SELECT * FROM `konstructor` WHERE `telegram_id` = {user_id}").fetchall()
+
+    def delete_ingredient(self, user_id, ingredient):
+        with self.connection:
+            self.cursor.execute(f"DELETE FROM 'konstructor' WHERE `telegram_id` = ? AND `ingredient` = ?", (user_id, ingredient, )) 
+    
+    def create_page_konstructor(self, urls):
+        with self.connection:
+            result = []
+            for url in urls:
+                result.append(self.cursor.execute(f"SELECT * FROM `{url.split('/')[2]}` WHERE `url` = '{url}'").fetchone())
+
+            return result
 
     # def insert_dish(self, name_category, name, yield_, time, img, url):
     #      with self.connection:
@@ -137,3 +195,11 @@ class SQLighter:
     #             print(len(row[-2]))
     #             if len(row[-2]) > 63:
     #                 self.cursor.execute(f"DELETE FROM '{name_db}' WHERE `url` = ?", (row[-2],)) 
+
+    # def refresh_url(self, name_db):
+    #     with self.connection:
+    #         self.cursor.execute(f"SELECT * FROM '{name_db}'")
+    #         for row in self.cursor.fetchall():
+    #             new_url = row[-3].replace('c88x88', '-x900')
+    #             self.cursor.execute(f"UPDATE `{name_db}` SET `img` = ? WHERE `id` = ?", (new_url, row[0]))
+    #             print(new_url)

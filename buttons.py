@@ -14,7 +14,8 @@ def menu():
     b_search = KeyboardButton(text = 'Поиск рецептов🔎')
     b_profile = KeyboardButton(text = 'Профиль💼')
     b_support = KeyboardButton(text = 'Поддержка🤝')
-    return keyboard.add(b_search, b_profile).add(b_support)
+    b_konstructor = KeyboardButton(text = 'Конструктор')
+    return keyboard.add(b_search, b_profile).add(b_support).add(b_konstructor)
 
 def search_recepts():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
@@ -48,3 +49,12 @@ def recepts_page(recepts_list):
     b_next = KeyboardButton(text = '➡️', callback_data = 'next_page')
     b_prev = KeyboardButton(text = '⬅️', callback_data = 'prev_page')
     return keyboard.add(b_prev, b_next)
+
+def basket(ingredients):
+    keyboard = InlineKeyboardMarkup(resize_keyboard=True)
+
+    for item in ingredients:
+        keyboard.add(KeyboardButton(text = f'{item[1]}  ✖', callback_data = f'/basket/ {item}'))
+    
+    b_start_konstructor = KeyboardButton(text = 'Подобрать рецепт', callback_data = f'start_konstructor') 
+    return keyboard.add(b_start_konstructor)
