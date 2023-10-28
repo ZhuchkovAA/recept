@@ -24,7 +24,7 @@ class SQLighter:
         with self.connection:
             return self.cursor.execute("INSERT INTO `users` (`telegram_id`, `first_name`, `last_name`, `registration_date`) VALUES (?, ?, ?, ?)", (user_telegram_id, user_firstname, user_lastname, datetime.now(), ))
 
-    def add_subscription(self, user_telegram_id, is_fulltime = 0, datetime_finaly = '2020-01-01 00:00:00.111111'): 
+    def add_start_subscription(self, user_telegram_id, is_fulltime = 0, datetime_finaly = '2020-01-01 00:00:00.111111'): 
         with self.connection:
             return self.cursor.execute("INSERT INTO `subscriptions` (`telegram_id`, `is_fulltime`, `datetime_finaly`) VALUES (?, ?, ?)", (user_telegram_id, is_fulltime, datetime_finaly, ))
 

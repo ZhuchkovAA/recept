@@ -40,11 +40,13 @@ def time_to_dish():
     b_back_menu = KeyboardButton(text = 'Вернуться в меню')
     return keyboard.add(b_1).add(b_2).add(b_3).add(b_all).add(b_back_menu)
 
-def recepts_page(recepts_list):
+def recepts_page(recepts_list, is_page=True):
     keyboard = InlineKeyboardMarkup(resize_keyboard=True)
 
     for item in recepts_list:
         keyboard.add(KeyboardButton(text = f'{item[1]}', callback_data = f'{item[-2]}'))
+
+    if not is_page: return keyboard
 
     b_next = KeyboardButton(text = '➡️', callback_data = 'next_page')
     b_prev = KeyboardButton(text = '⬅️', callback_data = 'prev_page')
@@ -56,5 +58,14 @@ def basket(ingredients):
     for item in ingredients:
         keyboard.add(KeyboardButton(text = f'{item[1]}  ✖', callback_data = f'/basket/ {item}'))
     
-    b_start_konstructor = KeyboardButton(text = 'Подобрать рецепт', callback_data = f'start_konstructor') 
+    b_start_konstructor = KeyboardButton(text = 'Подобрать рецепт ✅', callback_data = 'start_konstructor') 
     return keyboard.add(b_start_konstructor)
+
+def subscription():
+    keyboard = InlineKeyboardMarkup(resize_keyboard=True)
+
+    b_sub_week = KeyboardButton(text = '7 дней', callback_data = 'sub_week') 
+    b_sub_month = KeyboardButton(text = '30 дней', callback_data = 'sub_month') 
+    b_sub_season = KeyboardButton(text = '90 дней', callback_data = 'sub_season') 
+    b_sub_half_year = KeyboardButton(text = '180 дней', callback_data = 'sub_half_year') 
+    return keyboard.add(b_sub_week, b_sub_month, b_sub_season, b_sub_half_year)
