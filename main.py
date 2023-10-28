@@ -175,7 +175,7 @@ async def def_sub(call: types.CallbackQuery):
     elif (call.data == 'sub_season'): price = 48999
     elif (call.data == 'sub_half_year'): price = 89999
 
-    await bot.send_invoice(call.from_user.id, title='Оформление подписки', description='Подписка на более чем 2000 рецеатов со всего мира', payload=call.data, provider_token=YOO_API_TOKEN, currency='RUB', start_parameter='test_bot', prices=[{'label': 'руб', 'amount': price}])
+    await bot.send_invoice(call.from_user.id, title='Оформление подписки', description='Подписка на более чем 2000 рецептов со всего мира', payload=call.data, provider_token=YOO_API_TOKEN, currency='RUB', start_parameter='test_bot', prices=[{'label': 'руб', 'amount': price}])
 
 @dp.pre_checkout_query_handler()
 async def pre_checkout_query_handler(pre_checkout_query: types.PreCheckoutQuery):
@@ -213,7 +213,7 @@ async def def_profile(message: types.Message):
         elif sub['data']['description']['datetime_finaly']['is_current']:
             sub_str = f"До {sub['data']['description']['datetime_finaly']['datetime']}"
         else:
-            sub_str = f"{sub['data']['description']['counter']} запрос"
+            sub_str = f"{sub['data']['description']['counter']} рецепт"
             if sub['data']['description']['counter'] != 1:
                 sub_str += 'а'
 
@@ -256,6 +256,26 @@ async def def_start_konstructor(call: types.CallbackQuery):
             page_dish = db.create_page_konstructor(urls)
 
             await bot.send_message(call.from_user.id, 'Выберите:', reply_markup=recepts_page(page_dish, False))
+        else: 
+            await bot.send_message(call.from_user.id, '''<b>К сожалению, мы не смогли найти рецепт для Вас...</b>
+            
+Вот наиболее часто встречающиеся ингредиенты для блюд:<b>
+Соль
+Молотый черный перец
+Чеснок
+Сливочное масло     
+Сахар
+Оливковое масло
+Репчатый лук
+Куриное яйцо
+Вода
+Помидоры
+Растительное масло
+Пшеничная мука
+Морковь</b>
+            
+Добавьте ингредиенты из данного списка к себе в корзину и запустите консьруктор заново''', reply_markup=basket(db.get_konstructor(call.from_user.id)), parse_mode='HTML')
+    
     else:
         await bot.send_message(call.from_user.id, 'К сожалению, у вас закончилась подписка на бота😞\n\nДля того чтобы вновь получить доступ к более чем 2000 рецептам, продлите её, нажав на кнопку «Продлить🕓»', reply_markup=welcome(False))
 
@@ -266,7 +286,6 @@ if __name__ == "__main__":
     print('Success to work...')
     executor.start_polling(dp, skip_updates=True)
 
-    # for item in ['zavtraki', 'bulony', 'zakuski', 'napitki', 'osnovnye-blyuda', 'pasta-picca', 'rizotto', 'salaty', 'sousy-marinady', 'supy', 'sendvichi', 'vypechka-deserty', 'zagotovki']:
-    #     db.refresh_url(item)
+    # db.most_popular_ingredients()        
 
     # print(db.konstructor(data = ['хлеб', 'Яйцо', 'молоко', 'бананы', 'кардамон']))

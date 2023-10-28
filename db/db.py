@@ -128,14 +128,14 @@ class SQLighter:
                     current_dish = True
                     for ingredient in ingredients:
                         if len(ingredient.split(' ')) == 1:
-                            if ingredient.title() not in data and ingredient.lower() not in data:
+                            if ingredient.title() not in data and ingredient.lower() not in data and ingredient not in ['Молоко', 'Петрушка', 'Морковь', 'Масло', 'Помидоры', 'Вода', 'Яйцо', 'Лук', 'Сахар', 'Чеснок', 'Перец', 'Соль']:
                                 current_dish = False
                                 break
 
                         else:
                             flag = False
                             for ingredient_val in ingredient.split(' '):
-                                if ingredient_val.lower() in data or ingredient_val.title() in data:
+                                if ingredient_val.lower() in data or ingredient_val.title() in data or ingredient_val.title() in ['Молоко', 'Петрушка', 'Морковь', 'Масло', 'Помидоры', 'Вода', 'Яйцо', 'Лук', 'Сахар', 'Чеснок', 'Перец', 'Соль'] or ingredient_val.lower() in ['Молоко', 'Петрушка', 'Морковь', 'Масло', 'Помидоры', 'Вода', 'Яйцо', 'Лук', 'Сахар', 'Чеснок', 'Перец', 'Соль']:
                                     flag = True
                                     break
                             if not flag: current_dish = False
@@ -203,3 +203,21 @@ class SQLighter:
     #             new_url = row[-3].replace('c88x88', '-x900')
     #             self.cursor.execute(f"UPDATE `{name_db}` SET `img` = ? WHERE `id` = ?", (new_url, row[0]))
     #             print(new_url)
+
+    def most_popular_ingredients(self):
+        with self.connection:
+            main_list = {}
+            result = self.cursor.execute(f"SELECT `name` from `ingredients`").fetchall()
+
+            for ingredient in result:
+                main_list[ingredient[0]] = 0
+
+            for ingredient in result:
+                main_list[ingredient[0]] += 1
+
+            most_popular = sorted(main_list.items(), key=lambda item: item[1])[-15:]
+
+            for i in range(len(most_popular)):
+                most_popular[i] = most_popular[i][0]
+
+            print(most_popular)
