@@ -46,6 +46,13 @@ time_categories = {
     'Не имеет значения': '0-600 минут'
 }
 
+sub_days = {
+    'sub_week': 7,
+    'sub_month': 30,
+    'sub_season': 90,
+    'sub_half_year': 180
+    }
+
 @dp.message_handler(commands= ['start'])
 async def def_welcome(message: types.Message):
     if (not db.is_user(message.from_user.id)):
@@ -183,23 +190,12 @@ async def pre_checkout_query_handler(pre_checkout_query: types.PreCheckoutQuery)
 
 @dp.message_handler(content_types=ContentType.SUCCESSFUL_PAYMENT)
 async def def_process_pay(message: types.Message):
-    if message.successful_payment.invoice_payload == 'sub_week':
-        db.set_subscription_time(message.from_user.id, datetime.datetime.now() + datetime.timedelta(days=7))
-    
-    if message.successful_payment.invoice_payload == 'sub_month':
-        db.set_subscription_time(message.from_user.id, datetime.datetime.now() + datetime.timedelta(days=30))
-        await bot.send_message(message.from_user.id, 'month')
-    
-    if message.successful_payment.invoice_payload == 'sub_season':
-        db.set_subscription_time(message.from_user.id, datetime.datetime.now() + datetime.timedelta(days=90))
-        await bot.send_message(message.from_user.id, 'season')
-    
-    if message.successful_payment.invoice_payload == 'sub_half_year':
-        db.set_subscription_time(message.from_user.id, datetime.datetime.now() + datetime.timedelta(days=180))
-        await bot.send_message(message.from_user.id, 'half_year')
+    db.set_subscription_time(message.from_user.id, datetime.datetime.now() + datetime.timedelta(days=sub_days[message.successful_payment.invoice_payload]))
 
     end_sub = db.get_subscription(message.from_user.id)['data']['description']['datetime_finaly']['datetime']
     await bot.send_message(message.from_user.id, f'<b>Успешно приобретена подписка на бота.</b>\nДата окончания подписки: {end_sub}', reply_markup=menu(), parse_mode='HTML')
+
+    await bot.send_message(394248224, f'Пользователь {message.from_user.first_name} {message.from_user.last_name} (#{message.from_user.id}) приобрёл подписку!\n\nСрок: {sub_days[message.successful_payment.invoice_payload]} дней')
 
 @dp.message_handler(text= 'Профиль💼')
 async def def_profile(message: types.Message):
