@@ -196,6 +196,7 @@ async def def_process_pay(message: types.Message):
     await bot.send_message(message.from_user.id, f'<b>Успешно приобретена подписка на бота.</b>\nДата окончания подписки: {end_sub}', reply_markup=menu(), parse_mode='HTML')
 
     await bot.send_message(394248224, f'Пользователь {message.from_user.first_name} {message.from_user.last_name} (#{message.from_user.id}) приобрёл подписку!\n\nСрок: {sub_days[message.successful_payment.invoice_payload]} дней')
+    await bot.send_message(1183414181, f'Пользователь {message.from_user.first_name} {message.from_user.last_name} (#{message.from_user.id}) приобрёл подписку!\n\nСрок: {sub_days[message.successful_payment.invoice_payload]} дней')
 
 @dp.message_handler(text= 'Профиль💼')
 async def def_profile(message: types.Message):
