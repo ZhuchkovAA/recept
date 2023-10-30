@@ -128,14 +128,14 @@ class SQLighter:
                     current_dish = True
                     for ingredient in ingredients:
                         if len(ingredient.split(' ')) == 1:
-                            if ingredient.title() not in data and ingredient.lower() not in data and ingredient not in ['Молоко', 'Петрушка', 'Морковь', 'Масло', 'Помидоры', 'Вода', 'Яйцо', 'Лук', 'Сахар', 'Чеснок', 'Перец', 'Соль']:
+                            if ingredient.title() not in data and ingredient.lower() not in data and ingredient not in ['Молоко', 'Петрушка', 'Морковь', 'Масло', 'Помидоры', 'Вода', 'Лук', 'Сахар', 'Чеснок', 'Перец', 'Соль']:
                                 current_dish = False
                                 break
 
                         else:
                             flag = False
                             for ingredient_val in ingredient.split(' '):
-                                if ingredient_val.lower() in data or ingredient_val.title() in data or ingredient_val.title() in ['Молоко', 'Петрушка', 'Морковь', 'Масло', 'Помидоры', 'Вода', 'Яйцо', 'Лук', 'Сахар', 'Чеснок', 'Перец', 'Соль'] or ingredient_val.lower() in ['Молоко', 'Петрушка', 'Морковь', 'Масло', 'Помидоры', 'Вода', 'Яйцо', 'Лук', 'Сахар', 'Чеснок', 'Перец', 'Соль']:
+                                if ingredient_val.lower() in data or ingredient_val.title() in data or ingredient_val.title() in ['Молоко', 'Петрушка', 'Морковь', 'Масло', 'Помидоры', 'Вода', 'Лук', 'Сахар', 'Чеснок', 'Перец', 'Соль'] or ingredient_val.lower() in ['Молоко', 'Петрушка', 'Морковь', 'Масло', 'Помидоры', 'Вода', 'Лук', 'Сахар', 'Чеснок', 'Перец', 'Соль']:
                                     flag = True
                                     break
                             if not flag: current_dish = False

@@ -14,8 +14,9 @@ def menu():
     b_search = KeyboardButton(text = 'Поиск рецептов🔎')
     b_profile = KeyboardButton(text = 'Профиль💼')
     b_support = KeyboardButton(text = 'Поддержка🤝')
-    b_konstructor = KeyboardButton(text = 'Конструктор')
-    return keyboard.add(b_search, b_profile).add(b_support).add(b_konstructor)
+    # b_konstructor = KeyboardButton(text = 'Конструктор')
+    # return keyboard.add(b_search, b_profile).add(b_support).add(b_konstructor)
+    return keyboard.add(b_search, b_profile).add(b_support)
 
 def search_recepts():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
